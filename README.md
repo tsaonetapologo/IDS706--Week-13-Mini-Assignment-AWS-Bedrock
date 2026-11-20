@@ -10,15 +10,17 @@ In this workshop, I explored how to build generative AI applications with Amazon
 
 | Category | Activities and concepts | Status |
 |---|---|---|
-| Foundational F1-F9 | Console and APIs, inference settings, tool use, streaming, embeddings, Streamlit | Exercised; F3's requested pirate-style summary still needs verification. |
+| Foundational F1-F9 | Console and APIs, inference settings, tool use, streaming, embeddings, Streamlit | Exercised; F3 produced a pirate-style summary with an explicit user prompt. |
 | Basic B1-B4 | Text generation, RAG, conversation history, agent patterns | Exercised with representative tests. |
 | Text I1-I4 | RAG chatbot, PDF summarization, response streaming, semantic search | Exercised with representative tests. |
-| Multimodal M1-M8 | Image search, generation, variation, style transfer, masks, replacement, background editing, insertion | Exercised with substitutions; M5 prompt-based outpainting and M6 object removal remain incomplete. M7 automatically selects the foreground rather than selecting it by name. |
+| Multimodal M1-M8 | Image search, generation, variation, style transfer, masks, replacement, background editing, insertion | Exercised with substitutions; M5 prompt-based outpainting remains incomplete. M6 removal works with an image mask, not the original text-only selection. M7 automatically selects the foreground rather than selecting it by name. |
 | Security S1-S6 | Guardrail configuration, API integration, content filtering, PII masking, prompt-attack detection | Exercised with representative tests, not every example. |
 | Prompt engineering P1-P6 | Context, creation, summarization, question answering, translation, analysis and extraction | Exercised with representative prompts, not exhaustive evaluation. |
 | Bonus O1-O2 | Reusable prompt showcase and configurable text playground | Both apps exercised with representative inputs. |
 
-I completed representative exercises and tests in each category, but I did not verify every variation. I1-I4, S1-S6, and the two bonus labs were required; I also worked through the other requested categories. For M3-M8, I used Stability alternatives because the original Nova Canvas model was retired; these alternatives are not exact replacements. F3's pirate-style summary still needs verification, and the M5 and M6 modes noted above remain incomplete.
+I completed representative exercises and tests in each category, but I did not verify every variation. I1-I4, S1-S6, and the two bonus labs were required; I also worked through the other requested categories. For M3-M8, I used Stability alternatives because the original Nova Canvas model was retired; these alternatives are not exact replacements. M5 prompt-based outpainting and M6 text-only removal remain incomplete.
+
+**Follow-up tests:** In F3, the original pirate-style system instruction alone produced an ordinary summary with Nova. I made the user request explicitly ask for a pirate voice and the response began “Arrr, matey!” In M6, I provided a white-on-black mask over a lamp and Stability Erase removed it; I also checked that the app rejects a missing mask and that replacement still works. For M5, automatic foreground selection retained the desk, picture, and stool together, so I could not reliably select a named object for prompt-based outpainting.
 
 ## Representative labs
 
