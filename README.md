@@ -13,14 +13,14 @@ In this workshop, I explored how to build generative AI applications with Amazon
 | Foundational F1-F9 | Console and APIs, inference settings, tool use, streaming, embeddings, Streamlit | Exercised; F3 produced a pirate-style summary with an explicit user prompt. |
 | Basic B1-B4 | Text generation, RAG, conversation history, agent patterns | Exercised with representative tests. |
 | Text I1-I4 | RAG chatbot, PDF summarization, response streaming, semantic search | Exercised with representative tests. |
-| Multimodal M1-M8 | Image search, generation, variation, style transfer, masks, replacement, background editing, insertion | Exercised with substitutions; M5 prompt-based outpainting remains incomplete. M6 removal works with an image mask, not the original text-only selection. M7 automatically selects the foreground rather than selecting it by name. |
+| Multimodal M1-M8 | Image search, generation, variation, style transfer, masks, replacement, background editing, insertion | Exercised with substitutions. M5 and M6 now also have tested text-selected alternatives; their masks require review. M7 automatically selects the foreground rather than selecting it by name. |
 | Security S1-S6 | Guardrail configuration, API integration, content filtering, PII masking, prompt-attack detection | Exercised with representative tests, not every example. |
 | Prompt engineering P1-P6 | Context, creation, summarization, question answering, translation, analysis and extraction | Exercised with representative prompts, not exhaustive evaluation. |
 | Bonus O1-O2 | Reusable prompt showcase and configurable text playground | Both apps exercised with representative inputs. |
 
-I completed representative exercises and tests in each category, but I did not verify every variation. I1-I4, S1-S6, and the two bonus labs were required; I also worked through the other requested categories. For M3-M8, I used Stability alternatives because the original Nova Canvas model was retired; these alternatives are not exact replacements. M5 prompt-based outpainting and M6 text-only removal remain incomplete.
+I completed representative exercises and tests in each category, but I did not verify every variation. I1-I4, S1-S6, and the two bonus labs were required; I also worked through the other requested categories. For M3-M8, I used Stability alternatives because the original Nova Canvas model was retired; these alternatives are not exact replacements.
 
-**Follow-up tests:** In F3, the original pirate-style system instruction alone produced an ordinary summary with Nova. I made the user request explicitly ask for a pirate voice and the response began “Arrr, matey!” In M6, I provided a white-on-black mask over a lamp and Stability Erase removed it; I also checked that the app rejects a missing mask and that replacement still works. For M5, automatic foreground selection retained the desk, picture, and stool together, so I could not reliably select a named object for prompt-based outpainting.
+**Follow-up tests:** In F3, the original pirate-style system instruction alone produced an ordinary summary with Nova. I made the user request explicitly ask for a pirate voice and the response began “Arrr, matey!” For M5 and M6, I combined local text-guided segmentation with Stability image editing and tested the apps. The inferred masks are approximate and must be reviewed before editing.
 
 ## Representative labs
 
@@ -238,6 +238,31 @@ return invoke("stable-image-inpaint", image=encode(image_bytes),
 ![M8 insertion prompt and generated image](screenshots/m8-insertion.png)
 
 **Reflection:** I learned that mask polarity matters: this adaptation uses white for the area to edit. It is an inpainting-based approximation, not the original Nova implementation.
+
+#### M5 and M6 - Text-selected image edits, adapted
+
+**Workflow.** I entered an object description and generated a mask locally with CLIPSeg, reviewed the red overlay, and confirmed it before editing. For M5, I inverted the mask to preserve the selected desk while Stability Inpaint regenerated its surroundings. For M6, I sent the selected mask to Stability Erase without a replacement description.
+
+```mermaid
+flowchart LR
+    I[Image and object description] --> C[Local CLIPSeg]
+    C --> R[Review and confirm mask]
+    R -->|Invert mask| P[Stability Inpaint: M5]
+    R --> E[Stability Erase: M6]
+    P --> O[Edited image]
+    E --> O
+```
+
+```python
+mask = segment_image(image_bytes, object_description, threshold=0.30)
+# M5 edits outside the selected object; M6 erases the selected object.
+outpaint_mask = ImageOps.invert(Image.open(BytesIO(mask)).convert("L"))
+outpainted = masking(prompt, image_bytes, "OUTPAINTING", "Image",
+                     mask_bytes=png_bytes(outpaint_mask))
+removed = erase(image_bytes, mask)
+```
+
+**Observed:** I retained a desk while generating an office background, and removed a chandelier from a room; a small ceiling remnant remained. I verified the apps require mask confirmation and reject a stale mask after the description changes. The model also missed the lamp stand in a separate test, so I learned not to assume that a text-selected mask is accurate. These are reviewed approximations, not the retired model's original workflows. The [adapted source and setup](adaptations/m5-m6/README.md) are included.
 
 ### Security and safeguards
 
